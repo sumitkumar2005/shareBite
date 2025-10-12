@@ -9,6 +9,7 @@ const Login = ({ onToggleForm }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    role: 'receiver', // Add role field to login
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -28,6 +29,7 @@ const Login = ({ onToggleForm }) => {
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
     if (!formData.password) newErrors.password = 'Password is required';
+    if (!formData.role) newErrors.role = 'Please select your role';
     return newErrors;
   };
 
@@ -45,19 +47,25 @@ const Login = ({ onToggleForm }) => {
       const response = await fetch('http://localhost:8081/ShareBite/public/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          role: formData.role
+        }),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        // console.log('Login successful:', result);
+        // Save user/token to context
+        login(result);
 
-        // ✅ Save user/token to context
-        login(result); // store token or user data in context
-
-        // ✅ Navigate to dashboard
-        navigate('/dashboard');
+        // Navigate based on selected role
+        if (formData.role === 'sender') {
+          navigate('/seller-home');
+        } else {
+          navigate('/buyer-home');
+        }
       } else {
         setErrors({ submit: result.message || 'Invalid credentials. Please try again.' });
       }
@@ -101,6 +109,57 @@ const Login = ({ onToggleForm }) => {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Role Selection - Added as first field */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-2">
+              Login as
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className={`relative flex items-center justify-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
+                formData.role === 'sender' 
+                  ? 'border-green-500 bg-green-50 text-green-700' 
+                  : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
+              }`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="sender"
+                  checked={formData.role === 'sender'}
+                  onChange={handleChange}
+                  className="sr-only"
+                />
+                <div className="text-center">
+                  <svg className="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                  </svg>
+                  <span className="text-sm font-medium">Sender</span>
+                </div>
+              </label>
+
+              <label className={`relative flex items-center justify-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
+                formData.role === 'receiver' 
+                  ? 'border-green-500 bg-green-50 text-green-700' 
+                  : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
+              }`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="receiver"
+                  checked={formData.role === 'receiver'}
+                  onChange={handleChange}
+                  className="sr-only"
+                />
+                <div className="text-center">
+                  <svg className="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                  <span className="text-sm font-medium">Receiver</span>
+                </div>
+              </label>
+            </div>
+            {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role}</p>}
+          </div>
+
           {/* Email Field */}
           <div>
             <label htmlFor="email" className="block text-xs font-semibold text-gray-700 mb-1">

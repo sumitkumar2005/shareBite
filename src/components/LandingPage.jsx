@@ -94,12 +94,7 @@ const LandingPage = () => {
               >
                 Get Started Free
               </button>
-              <button
-                onClick={() => navigate("/login")}
-                className="w-full sm:w-auto border-2 border-green-500 text-green-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-green-50 transition-all duration-200"
-              >
-                Sign In
-              </button>
+              
             </div>
 
             {/* Stats */}

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Signup = ({ onToggleForm }) => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -10,6 +12,7 @@ const Signup = ({ onToggleForm }) => {
     confirmPassword: '',
     phoneNumber: '',
     userType: 'Individual',
+    role: 'receiver', // New role field
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -58,6 +61,10 @@ const Signup = ({ onToggleForm }) => {
       newErrors.phoneNumber = 'Phone number must be 10 digits';
     }
 
+    if (!formData.role) {
+      newErrors.role = 'Please select your role';
+    }
+
     return newErrors;
   };
 
@@ -78,7 +85,8 @@ const Signup = ({ onToggleForm }) => {
         password: formData.password,
         name: formData.name,
         phoneNumber: formData.phoneNumber,
-        userType: formData.userType
+        userType: formData.userType,
+        role: formData.role
       };
 
       const response = await fetch('http://localhost:8081/ShareBite/public/signup', {
@@ -92,8 +100,16 @@ const Signup = ({ onToggleForm }) => {
       if (response.ok) {
         const result = await response.json();
         console.log('Signup successful:', result);
-        // Navigate to login page or dashboard
-        navigate('/login');
+
+        // Store user data and redirect based on role
+        login(result);
+
+        // Redirect based on role
+        if (formData.role === 'sender') {
+          navigate('/seller-home');
+        } else {
+          navigate('/buyer-home');
+        }
       } else {
         const errorData = await response.json();
         setErrors({ submit: errorData.message || 'Signup failed. Please try again.' });
@@ -138,6 +154,59 @@ const Signup = ({ onToggleForm }) => {
 
         {/* Signup Form */}
         <form onSubmit={handleSubmit} className="space-y-3">
+          {/* Role Selection - Added as first field */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-2">
+              I want to be a
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className={`relative flex items-center justify-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
+                formData.role === 'sender' 
+                  ? 'border-green-500 bg-green-50 text-green-700' 
+                  : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
+              }`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="sender"
+                  checked={formData.role === 'sender'}
+                  onChange={handleChange}
+                  className="sr-only"
+                />
+                <div className="text-center">
+                  <svg className="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                  </svg>
+                  <span className="text-sm font-medium">Sender</span>
+                  <p className="text-xs text-gray-500 mt-1">Share food</p>
+                </div>
+              </label>
+
+              <label className={`relative flex items-center justify-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
+                formData.role === 'receiver' 
+                  ? 'border-green-500 bg-green-50 text-green-700' 
+                  : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
+              }`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="receiver"
+                  checked={formData.role === 'receiver'}
+                  onChange={handleChange}
+                  className="sr-only"
+                />
+                <div className="text-center">
+                  <svg className="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                  <span className="text-sm font-medium">Receiver</span>
+                  <p className="text-xs text-gray-500 mt-1">Get food</p>
+                </div>
+              </label>
+            </div>
+            {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role}</p>}
+          </div>
+
           {/* Full Name Field */}
           <div>
             <label htmlFor="name" className="block text-xs font-semibold text-gray-700 mb-1">
@@ -208,16 +277,13 @@ const Signup = ({ onToggleForm }) => {
                   name="userType"
                   value={formData.userType}
                   onChange={handleChange}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all duration-300 bg-gray-50 hover:bg-white appearance-none cursor-pointer
-                  [&>option]:bg-white [&>option]:text-gray-700 [&>option]:py-2 [&>option]:px-3
-                  [&>option:hover]:bg-green-50 [&>option:checked]:bg-green-100 [&>option:checked]:text-green-700"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all duration-300 bg-gray-50 hover:bg-white appearance-none cursor-pointer"
                 >
-                  <option value="Individual" className="bg-white hover:bg-green-50 py-2">Individual</option>
-                  <option value="NGO" className="bg-white hover:bg-green-50 py-2">NGO</option>
+                  <option value="Individual">Individual</option>
+                  <option value="NGO">NGO</option>
                 </select>
-                {/* Custom dropdown arrow */}
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <svg className="w-4 h-4 text-gray-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
