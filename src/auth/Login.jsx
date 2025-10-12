@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'
 
-const Login = ({ onToggleForm, onLogin }) => {
+const Login = ({ onToggleForm }) => {
   const navigate = useNavigate();
+  const { login } = useAuth(); 
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -15,34 +18,21 @@ const Login = ({ onToggleForm, onLogin }) => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    // Clear error when user starts typing
     if (errors[e.target.name]) {
-      setErrors({
-        ...errors,
-        [e.target.name]: '',
-      });
+      setErrors({ ...errors, [e.target.name]: '' });
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    }
-
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.password) newErrors.password = 'Password is required';
     return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -52,35 +42,28 @@ const Login = ({ onToggleForm, onLogin }) => {
     setIsLoading(true);
 
     try {
-      const loginData = {
-        email: formData.email,
-        password: formData.password
-      };
-
       const response = await fetch('http://localhost:8081/ShareBite/public/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(loginData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
 
+      const result = await response.json();
+
       if (response.ok) {
-        const result = await response.json();
-        console.log('Login successful:', result);
-        // Call the onLogin prop with user data if needed
-        if (onLogin) {
-          onLogin(result);
-        }
-        // Navigate to dashboard after successful login
+        // console.log('Login successful:', result);
+
+        // ✅ Save user/token to context
+        login(result); // store token or user data in context
+
+        // ✅ Navigate to dashboard
         navigate('/dashboard');
       } else {
-        const errorData = await response.json();
-        setErrors({ submit: errorData.message || 'Login failed. Please check your credentials.' });
+        setErrors({ submit: result.message || 'Invalid credentials. Please try again.' });
       }
     } catch (error) {
       console.error('Login error:', error);
-      setErrors({ submit: 'Network error. Please check your connection and try again.' });
+      setErrors({ submit: error.message });
     } finally {
       setIsLoading(false);
     }
@@ -183,13 +166,12 @@ const Login = ({ onToggleForm, onLogin }) => {
           </button>
         </form>
 
-
         {/* Sign Up Link */}
         <div className="mt-5 text-center">
           <p className="text-gray-600 text-sm">
             Don't have an account?{' '}
             <button
-              onClick={onToggleForm}
+              onClick={() => navigate('/register')}
               className="text-green-600 font-semibold hover:text-green-700 transition-colors hover:underline"
             >
               Sign up here
