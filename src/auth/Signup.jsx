@@ -10,16 +10,15 @@ const Signup = ({ onToggleForm }) => {
     confirmPassword: '',
     phoneNumber: '',
     userType: 'Individual',
-    agreeToTerms: false,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value} = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: value
     });
     // Clear error when user starts typing
     if (errors[name]) {
@@ -57,10 +56,6 @@ const Signup = ({ onToggleForm }) => {
       newErrors.phoneNumber = 'Phone number is required';
     } else if (!/^\d{10}$/.test(formData.phoneNumber.replace(/\D/g, ''))) {
       newErrors.phoneNumber = 'Phone number must be 10 digits';
-    }
-
-    if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = 'You must agree to the terms and conditions';
     }
 
     return newErrors;
@@ -319,7 +314,7 @@ const Signup = ({ onToggleForm }) => {
           <p className="text-gray-600 text-sm">
             Already have an account?{' '}
             <button
-              onClick={onToggleForm}
+              onClick={() => navigate('/login')}
               className="text-green-600 font-semibold hover:text-green-700 transition-colors hover:underline"
             >
               Sign in here
