@@ -1,3 +1,5 @@
+import ShareBiteLogo from '../../../assets/ShareBite.png';
+
 const Header = ({ user, userLocation, onLogout }) => {
   return (
     <header className="bg-white/90 backdrop-blur-md shadow-lg border-b border-green-100 sticky top-0 z-50">
@@ -5,11 +7,11 @@ const Header = ({ user, userLocation, onLogout }) => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-3">
             <div className="flex-shrink-0">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-200">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-                </svg>
-              </div>
+              <img
+                src={ShareBiteLogo}
+                alt="ShareBite"
+                className="h-10 w-auto"
+              />
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
@@ -27,7 +29,7 @@ const Header = ({ user, userLocation, onLogout }) => {
             </div>
 
             {userLocation && (
-              <div className="hidden md:flex items-center space-x-1 text-xs text-green-600 bg-green-50 px-3 py-2 rounded-full border border-green-200 animate-pulse">
+              <div className="hidden md:flex items-center space-x-1 text-xs text-green-600 bg-green-50 px-3 py-2 rounded-full border border-green-200">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />

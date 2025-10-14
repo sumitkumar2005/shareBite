@@ -9,7 +9,7 @@ const Login = ({ onToggleForm }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    role: 'receiver', // Add role field to login
+    role: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -29,7 +29,7 @@ const Login = ({ onToggleForm }) => {
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
     if (!formData.password) newErrors.password = 'Password is required';
-    if (!formData.role) newErrors.role = 'Please select your role';
+    if (!formData.role) newErrors.role = 'Role selection is required';
     return newErrors;
   };
 
@@ -47,11 +47,7 @@ const Login = ({ onToggleForm }) => {
       const response = await fetch('http://localhost:8081/ShareBite/public/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          role: formData.role
-        }),
+        body: JSON.stringify(formData),
       });
 
       const result = await response.json();
@@ -109,7 +105,7 @@ const Login = ({ onToggleForm }) => {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Role Selection - Added as first field */}
+          {/* Role Selection - Updated labels */}
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-2">
               Login as
@@ -132,7 +128,7 @@ const Login = ({ onToggleForm }) => {
                   <svg className="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
                   </svg>
-                  <span className="text-sm font-medium">Sender</span>
+                  <span className="text-sm font-medium">Seller</span>
                 </div>
               </label>
 
@@ -153,7 +149,7 @@ const Login = ({ onToggleForm }) => {
                   <svg className="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                   </svg>
-                  <span className="text-sm font-medium">Receiver</span>
+                  <span className="text-sm font-medium">Buyer</span>
                 </div>
               </label>
             </div>

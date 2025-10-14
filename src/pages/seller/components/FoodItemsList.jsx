@@ -1,4 +1,51 @@
-const FoodItemsList = ({ foodItems }) => {
+import { useState } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+
+const FoodItemsList = ({ foodItems, onFoodDeleted }) => {
+  const { token } = useAuth();
+  const [deletingItems, setDeletingItems] = useState(new Set());
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const handleDeleteFood = async (foodId) => {
+    if (deletingItems.has(foodId)) return; // Prevent multiple delete requests
+
+    setDeletingItems(prev => new Set(prev).add(foodId));
+
+    try {
+      const response = await fetch(`http://localhost:8081/ShareBite/api/foods/delete/${foodId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // Call the callback to refresh the food list
+        if (onFoodDeleted) {
+          onFoodDeleted(foodId);
+        }
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to delete food item:', errorData);
+        alert('Failed to delete food item. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting food:', error);
+      alert('Network error. Please try again.');
+    } finally {
+      setDeletingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(foodId);
+        return newSet;
+      });
+    }
+  };
+
   return (
     <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-green-100 overflow-hidden">
       {/* Header Section */}
@@ -19,36 +66,33 @@ const FoodItemsList = ({ foodItems }) => {
 
           {/* Status indicator */}
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-300 rounded-full animate-pulse"></div>
+            <div className="w-3 h-3 bg-green-300 rounded-full"></div>
             <span className="text-white text-sm font-medium">Live</span>
           </div>
         </div>
 
         {/* Floating particles */}
-        <div className="absolute top-4 right-20 w-2 h-2 bg-white/40 rounded-full animate-bounce delay-300"></div>
-        <div className="absolute bottom-3 left-1/4 w-1 h-1 bg-green-300 rounded-full animate-ping delay-700"></div>
+        <div className="absolute top-4 right-20 w-2 h-2 bg-white/40 rounded-full"></div>
+        <div className="absolute bottom-3 left-1/4 w-1 h-1 bg-green-300 rounded-full"></div>
       </div>
 
       <div className="p-6">
         {foodItems.length === 0 ? (
           /* Empty State */
-          <div className="text-center py-12 animate-fade-in-up">
-            <div className="relative mb-6">
-              <div className="w-24 h-24 mx-auto bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center animate-pulse">
-                <svg className="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </div>
-              {/* Floating elements around empty state */}
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-200 rounded-full animate-bounce opacity-60"></div>
-              <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-green-200 rounded-full animate-pulse delay-500 opacity-60"></div>
+          <div className="text-center py-16">
+            <div className="w-3 h-3 bg-green-300 rounded-full"></div>
+            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mb-6 relative">
+              <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-green-200 rounded-full"></div>
             </div>
             <h3 className="text-xl font-semibold text-gray-700 mb-2">No food items yet</h3>
             <p className="text-gray-500 mb-6 max-w-sm mx-auto">
               Start making a difference! Add your first food item to help reduce waste and feed your community. 🌱
             </p>
             <div className="inline-flex items-center space-x-2 text-green-600 font-medium">
-              <svg className="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
               </svg>
               <span>Click "Add Food Item" above</span>
@@ -60,19 +104,18 @@ const FoodItemsList = ({ foodItems }) => {
             {foodItems.map((item, index) => (
               <div
                 key={item.id}
-                className="group bg-gradient-to-br from-white to-green-50 border-2 border-green-100 hover:border-green-300 rounded-2xl p-5 hover:shadow-xl transition-all duration-300 transform hover:scale-105 animate-slide-up relative overflow-hidden"
+                className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-green-100 relative group"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                {/* Status badge */}
-                <div className="absolute -top-1 -right-1">
-                  <div className={`px-3 py-1 text-xs font-bold rounded-full shadow-md ${
-                    item.status === 'active' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white animate-pulse' :
-                    item.status === 'sold' ? 'bg-gradient-to-r from-gray-400 to-gray-500 text-white' :
-                    'bg-gradient-to-r from-yellow-400 to-orange-500 text-white animate-bounce'
-                  }`}>
-                    {item.status === 'active' ? '🟢 Active' :
-                     item.status === 'sold' ? '✅ Shared' : '⏳ Pending'}
-                  </div>
+                <div className="flex items-center justify-between mb-4">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      item.available ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white' :
+                      'bg-gradient-to-r from-gray-400 to-gray-500 text-white'
+                    }`}
+                  >
+                    {item.available ? 'Available' : 'Not Available'}
+                  </span>
                 </div>
 
                 {/* Food emoji based on name */}
@@ -82,7 +125,8 @@ const FoodItemsList = ({ foodItems }) => {
                    item.foodName.toLowerCase().includes('sandwich') ? '🥪' :
                    item.foodName.toLowerCase().includes('burger') ? '🍔' :
                    item.foodName.toLowerCase().includes('cake') ? '🎂' :
-                   item.foodName.toLowerCase().includes('bread') ? '🍞' : '🍽️'}
+                   item.foodName.toLowerCase().includes('bread') ? '🍞' :
+                   item.foodName.toLowerCase().includes('slice') ? '🍰' : '🍽️'}
                 </div>
 
                 <div className="flex items-start justify-between mb-3">
@@ -107,7 +151,7 @@ const FoodItemsList = ({ foodItems }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
-                    <span className="font-medium">Best before: {item.bestBefore} hours</span>
+                    <span className="font-medium text-xs">Best before: {formatDate(item.bestBefore)}</span>
                   </div>
 
                   <div className="flex items-center space-x-2 group-hover:text-purple-600 transition-colors">
@@ -118,67 +162,56 @@ const FoodItemsList = ({ foodItems }) => {
                       </svg>
                     </div>
                     <span className="font-medium text-xs">
-                      📍 {item.latitude?.toFixed(4)}, {item.longitude?.toFixed(4)}
+                      📍 {item.location?.coordinates ?
+                        `${item.location.coordinates[1].toFixed(4)}, ${item.location.coordinates[0].toFixed(4)}` :
+                        'Location not available'}
                     </span>
+                  </div>
+
+                  <div className="flex items-center space-x-2 group-hover:text-gray-600 transition-colors">
+                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a4 4 0 118 0v4M3 7h18l-2 13H5L3 7z" />
+                      </svg>
+                    </div>
+                    <span className="font-medium text-xs">Posted: {formatDate(item.postedOn)}</span>
                   </div>
                 </div>
 
                 {/* Action buttons */}
                 <div className="mt-5 flex space-x-2">
-                  <button className="flex-1 bg-gradient-to-r from-green-100 to-emerald-100 hover:from-green-200 hover:to-emerald-200 text-green-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    <span>Edit</span>
-                  </button>
-                  <button className="flex-1 bg-gradient-to-r from-red-100 to-pink-100 hover:from-red-200 hover:to-pink-200 text-red-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    <span>Remove</span>
+                  <button
+                    onClick={() => handleDeleteFood(item.id)}
+                    disabled={deletingItems.has(item.id)}
+                    className={`flex-1 ${
+                      deletingItems.has(item.id) 
+                        ? 'bg-gray-200 cursor-not-allowed' 
+                        : 'bg-gradient-to-r from-red-100 to-pink-100 hover:from-red-200 hover:to-pink-200'
+                    } text-red-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-1`}
+                  >
+                    {deletingItems.has(item.id) ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>
+                        <span>Removing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span>Remove</span>
+                      </>
+                    )}
                   </button>
                 </div>
 
                 {/* Decorative elements */}
-                <div className="absolute bottom-2 right-2 w-2 h-2 bg-green-300 rounded-full animate-ping opacity-50"></div>
-                <div className="absolute top-2 left-2 w-1 h-1 bg-yellow-300 rounded-full animate-pulse delay-1000"></div>
+                <div className="absolute top-2 left-2 w-1 h-1 bg-yellow-300 rounded-full"></div>
               </div>
             ))}
           </div>
         )}
       </div>
-
-      <style jsx>{`
-        @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes slide-up {
-          from {
-            opacity: 0;
-            transform: translateY(20px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        
-        .animate-fade-in-up {
-          animation: fade-in-up 0.8s ease-out;
-        }
-        
-        .animate-slide-up {
-          animation: slide-up 0.6s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 };

@@ -23,6 +23,8 @@ const SellerHome = ({ userInfo, onLogout }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [isLoadingItems, setIsLoadingItems] = useState(false);
+  const [itemsError, setItemsError] = useState('');
 
   // Get user location on component mount
   useEffect(() => {
@@ -46,6 +48,56 @@ const SellerHome = ({ userInfo, onLogout }) => {
       setLocationLoading(false);
     }
   }, []);
+
+  // Fetch food items from API
+  useEffect(() => {
+    const fetchFoodItems = async () => {
+      if (!token) return;
+
+      setIsLoadingItems(true);
+      setItemsError('');
+
+      try {
+        const headers = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        };
+
+        const response = await fetch('http://localhost:8081/ShareBite/api/foods/viewAll', {
+          method: 'GET',
+          headers: headers
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Food items fetched:', result);
+
+          // Handle different response formats
+          if (Array.isArray(result)) {
+            setFoodItems(result);
+          } else if (result.data && Array.isArray(result.data)) {
+            setFoodItems(result.data);
+          } else if (result.foods && Array.isArray(result.foods)) {
+            setFoodItems(result.foods);
+          } else {
+            console.warn('Unexpected response format:', result);
+            setFoodItems([]);
+          }
+        } else {
+          const errorData = await response.json();
+          setItemsError(errorData.message || 'Failed to fetch food items');
+          console.error('Failed to fetch food items:', errorData);
+        }
+      } catch (error) {
+        console.error('Error fetching food items:', error);
+        setItemsError('Network error. Please check your connection.');
+      } finally {
+        setIsLoadingItems(false);
+      }
+    };
+
+    fetchFoodItems();
+  }, [token]); // Refetch when token changes
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -122,6 +174,38 @@ const SellerHome = ({ userInfo, onLogout }) => {
     }
   };
 
+  // Function to handle food deletion
+  const handleFoodDeleted = async (deletedFoodId) => {
+    // Remove the deleted item from the local state immediately for better UX
+    setFoodItems(prev => prev.filter(item => item.id !== deletedFoodId));
+
+    // Optionally, refetch the entire list to ensure consistency
+    // This is commented out since we're already removing from local state
+    // You can uncomment if you want to always sync with server
+    /*
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+
+      const response = await fetch('http://localhost:8081/ShareBite/api/foods/viewAll', {
+        method: 'GET',
+        headers: headers
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (Array.isArray(result)) {
+          setFoodItems(result);
+        }
+      }
+    } catch (error) {
+      console.error('Error refetching food items:', error);
+    }
+    */
+  };
+
   const handleLogout = () => {
     onLogout();
     navigate('/login');
@@ -133,17 +217,16 @@ const SellerHome = ({ userInfo, onLogout }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-200 rounded-full opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-200 rounded-full opacity-20 animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-100 rounded-full opacity-10 animate-pulse delay-500"></div>
+      {/* Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-200 rounded-full opacity-20"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-200 rounded-full opacity-20"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-100 rounded-full opacity-10"></div>
 
-        {/* Floating particles */}
-        <div className="absolute top-20 left-20 w-2 h-2 bg-green-300 rounded-full animate-bounce"></div>
-        <div className="absolute top-40 right-32 w-3 h-3 bg-emerald-300 rounded-full animate-bounce delay-300"></div>
-        <div className="absolute bottom-40 left-1/4 w-2 h-2 bg-teal-300 rounded-full animate-bounce delay-700"></div>
-        <div className="absolute bottom-20 right-20 w-4 h-4 bg-green-400 rounded-full animate-pulse delay-1000"></div>
+        {/* Small floating elements */}
+        <div className="absolute top-20 left-20 w-3 h-3 bg-green-300 rounded-full"></div>
+        <div className="absolute top-40 right-32 w-2 h-2 bg-emerald-400 rounded-full"></div>
+        <div className="absolute bottom-20 right-20 w-4 h-4 bg-green-400 rounded-full"></div>
       </div>
 
       <Header
@@ -186,7 +269,12 @@ const SellerHome = ({ userInfo, onLogout }) => {
           onSubmit={handleSubmitFood}
         />
 
-        <FoodItemsList foodItems={foodItems} />
+        <div className="mt-8 space-y-8">
+          <FoodItemsList
+            foodItems={foodItems}
+            onFoodDeleted={handleFoodDeleted}
+          />
+        </div>
       </main>
 
       <style jsx>{`

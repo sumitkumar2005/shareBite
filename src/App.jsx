@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import LandingPage from './components/LandingPage';
 import Login from './auth/Login';
 import Signup from './auth/Signup';
-import BuyerHome from './components/BuyerHome';
+import BuyerHome from './pages/buyer/BuyerHome.jsx';
 import SellerHome from './pages/seller/SellerHome';
 import { useAuth } from './context/AuthContext';
 

@@ -58,7 +58,7 @@ const AddFoodModal = ({
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Food Name Field */}
             <div className="group">
-              <label htmlFor="foodName" className="block text-sm font-semibold text-gray-700 mb-2 group-focus-within:text-green-600 transition-colors">
+              <label htmlFor="foodName" className="block text-sm font-semibold text-gray-700 mb-2">
                 🍽️ Food Name
               </label>
               <div className="relative">
@@ -69,16 +69,16 @@ const AddFoodModal = ({
                   value={formData.foodName}
                   onChange={onInputChange}
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 bg-gray-50 focus:bg-white group-hover:border-green-300"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 bg-white/80 backdrop-blur-sm"
                   placeholder="e.g., Fresh Pizza Slices"
                 />
-                <div className="absolute inset-0 border-2 border-green-500 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none animate-pulse"></div>
+                <div className="absolute inset-0 border-2 border-green-500 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
               </div>
             </div>
 
             {/* Servings Field */}
             <div className="group">
-              <label htmlFor="servings" className="block text-sm font-semibold text-gray-700 mb-2 group-focus-within:text-green-600 transition-colors">
+              <label htmlFor="servings" className="block text-sm font-semibold text-gray-700 mb-2">
                 👥 Number of Servings
               </label>
               <div className="relative">
@@ -90,16 +90,16 @@ const AddFoodModal = ({
                   onChange={onInputChange}
                   required
                   min="1"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 bg-gray-50 focus:bg-white group-hover:border-green-300"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 bg-white/80 backdrop-blur-sm"
                   placeholder="e.g., 10"
                 />
-                <div className="absolute inset-0 border-2 border-green-500 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none animate-pulse"></div>
+                <div className="absolute inset-0 border-2 border-green-500 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
               </div>
             </div>
 
             {/* Best Before Field */}
             <div className="group">
-              <label htmlFor="bestBefore" className="block text-sm font-semibold text-gray-700 mb-2 group-focus-within:text-green-600 transition-colors">
+              <label htmlFor="bestBefore" className="block text-sm font-semibold text-gray-700 mb-2">
                 ⏰ Best Before (hours)
               </label>
               <div className="relative">
@@ -111,10 +111,10 @@ const AddFoodModal = ({
                   onChange={onInputChange}
                   required
                   min="1"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 bg-gray-50 focus:bg-white group-hover:border-green-300"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 bg-white/80 backdrop-blur-sm"
                   placeholder="e.g., 10"
                 />
-                <div className="absolute inset-0 border-2 border-green-500 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none animate-pulse"></div>
+                <div className="absolute inset-0 border-2 border-green-500 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
               </div>
             </div>
 
@@ -122,7 +122,7 @@ const AddFoodModal = ({
             {userLocation && (
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 p-4 rounded-xl animate-slide-in">
                 <div className="flex items-center space-x-2 text-green-700">
-                  <svg className="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>

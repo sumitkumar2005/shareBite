@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import ShareBiteLogo from "../assets/ShareBite.png";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -55,17 +56,52 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Navigation Header */}
+      <nav className="absolute top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-green-100">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center space-x-3">
+              <img
+                src={ShareBiteLogo}
+                alt="ShareBite"
+                className="h-10 w-auto"
+              />
+              <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">
+                ShareBite
+              </span>
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => navigate("/login")}
+                className="px-4 py-2 text-green-600 hover:text-green-700 font-medium transition-colors"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => navigate("/register")}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 transform hover:scale-105"
+              >
+                Sign Up
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-green-50 via-green-100 to-green-200">
+      <div className="relative overflow-hidden bg-gradient-to-br from-green-50 via-green-100 to-green-200 pt-20">
         {/* Floating Animation Elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-4 -left-4 w-20 h-20 bg-green-200 rounded-full opacity-60 animate-pulse"></div>
+          <div className="absolute -top-4 -left-4 w-20 h-20 bg-green-200 rounded-full opacity-60"></div>
           <div
             className="absolute top-1/4 right-10 w-16 h-16 bg-green-300 rounded-full opacity-40"
             style={{ animationDelay: "1s" }}
           ></div>
           <div
-            className="absolute bottom-1/4 left-1/4 w-12 h-12 bg-green-400 rounded-full opacity-50 animate-pulse"
+            className="absolute bottom-1/4 left-1/4 w-12 h-12 bg-green-400 rounded-full opacity-50"
             style={{ animationDelay: "2s" }}
           ></div>
         </div>
@@ -94,7 +130,6 @@ const LandingPage = () => {
               >
                 Get Started Free
               </button>
-              
             </div>
 
             {/* Stats */}
@@ -127,7 +162,7 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose FoodShare?
+              Why Choose ShareBite?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Making a difference has never been this easy and rewarding
@@ -190,7 +225,7 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <span className="text-2xl">🍽️</span>
-            <span className="text-xl font-bold">FoodShare</span>
+            <span className="text-xl font-bold">ShareBite</span>
           </div>
           <p className="text-gray-400">
             Making the world more sustainable, one meal at a time.
