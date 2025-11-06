@@ -6,6 +6,7 @@ import LocationHandler from './components/LocationHandler';
 import SearchAndFilters from './components/SearchAndFilters';
 import DashboardStats from './components/DashboardStats';
 import NearbyFoodsList from './components/NearbyFoodsList';
+import FoodLocationMap from './components/FoodLocationMap';
 
 const BuyerHome = ({ userInfo, onLogout }) => {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ const BuyerHome = ({ userInfo, onLogout }) => {
   const [foodsError, setFoodsError] = useState('');
   const [selectedRadius, setSelectedRadius] = useState(10); // Default 10km
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFood, setSelectedFood] = useState(null);
+  const [showMap, setShowMap] = useState(false);
 
   // Get user location on component mount
   useEffect(() => {
@@ -107,6 +110,16 @@ const BuyerHome = ({ userInfo, onLogout }) => {
     navigate('/login');
   };
 
+  const handleFoodItemClick = (food) => {
+    setSelectedFood(food);
+    setShowMap(true);
+  };
+
+  const handleCloseMap = () => {
+    setShowMap(false);
+    setSelectedFood(null);
+  };
+
   if (locationLoading) {
     return <LocationHandler loading={true} />;
   }
@@ -187,7 +200,17 @@ const BuyerHome = ({ userInfo, onLogout }) => {
           error={foodsError}
           selectedRadius={selectedRadius}
           onExpandSearch={() => setSelectedRadius(Math.min(selectedRadius + 10, 50))}
+          onFoodItemClick={handleFoodItemClick}
         />
+
+        {/* Map Modal */}
+        {showMap && selectedFood && (
+          <FoodLocationMap
+            foodItem={selectedFood}
+            userLocation={userLocation}
+            onClose={handleCloseMap}
+          />
+        )}
       </main>
 
       <style jsx>{`

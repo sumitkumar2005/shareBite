@@ -26,8 +26,17 @@ const SellerHome = ({ userInfo, onLogout }) => {
   const [isLoadingItems, setIsLoadingItems] = useState(false);
   const [itemsError, setItemsError] = useState('');
 
-  // Get user location on component mount
+  // Get user location on component mount - TESTING: Using fixed coordinates
   useEffect(() => {
+    // For testing - using fixed coordinates instead of actual GPS
+    setUserLocation({
+      latitude: 31.2966,
+      longitude: 75.6177
+    });
+    setLocationLoading(false);
+
+    // Comment out actual geolocation for testing
+    /*
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -47,6 +56,7 @@ const SellerHome = ({ userInfo, onLogout }) => {
       setLocationError('Geolocation is not supported by this browser.');
       setLocationLoading(false);
     }
+    */
   }, []);
 
   // Fetch food items from API

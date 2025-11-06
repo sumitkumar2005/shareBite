@@ -16,6 +16,7 @@ const FoodItemsList = ({ foodItems, onFoodDeleted }) => {
     setDeletingItems(prev => new Set(prev).add(foodId));
 
     try {
+      console.log(`http://localhost:8081/ShareBite/api/foods/delete/${foodId}`);
       const response = await fetch(`http://localhost:8081/ShareBite/api/foods/delete/${foodId}`, {
         method: 'DELETE',
         headers: {
